@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <script>
+      import Module from "gameoflife.js";
+      module = Module({wasmBinaryFile: 'gameoflife.wasm'})
+      console.log(module._GenerateUniverse(4,4));
+    </script>
+</head>
+<body>
+    <input type = "button" id = "btn1" value = "Web Asm >>" />
+    
+</body>
+</html>

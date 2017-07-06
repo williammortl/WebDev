@@ -1,0 +1,18 @@
+	emcc \
+		-s WASM=1 -s ONLY_MY_CODE=1 -s EXPORTED_FUNCTIONS="['CreateUniverse']" \
+		-o gameoflife.js *.c
+
+
+                var importObject = {
+            'imports': {
+                'imported_func': function(arg) {
+                    console.log(arg);}
+            },
+            'env': {
+                'memoryBase': 0,
+                'tableBase': 0,
+                'memory': new WebAssembly.Memory({initial: 256}),
+                'table': new WebAssembly.Table({initial: 0, element: 'anyfunc'})
+            }};
+        fetchAndInstantiate('a.out.wasm', importObject).then(function(instance) {
+            instance.exports.CreateUniverse(4, 4);})
