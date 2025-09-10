@@ -7,8 +7,8 @@ My personal website which uses Rust code compiled into [WebAssembly](https://web
 Make sure to have the following installed to
 
 1. [**Rust**](https://www.rust-lang.org/)
-1. **wasm-pack** to install run `cargo install wasm-pack`
-1. **python3** (if you want to use the built in webserver for testing)
+1. **wasm-pack** to install run: `cargo install wasm-pack`
+1. **python3** (if you want to use the built in webserver for testing from the Makefile)
 1. **make**
 
 ## Building, etc.
