@@ -1,2 +1,4 @@
 /wasm-life/target
 .DS_Store
+/wasm-life/pkg
+/web/pkg

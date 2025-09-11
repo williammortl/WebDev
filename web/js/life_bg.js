@@ -1,28 +1,27 @@
 let memory;
-import init, { Universe } from '../pkg/wasm_life.js';
+import wasmInit, { Universe } from '../pkg/wasm_life.js';
 
-const CELL_SIZE = 6; // px
+const CELL_SIZE = 9; // px
 const GRID_COLOR = '#222';
 const DEAD_COLOR = '#111';
-const ALIVE_COLOR = '#00FF99';
+const ALIVE_COLORS = [
+    '#00FF99', // green (current)
+    '#FF0000', // red
+    '#FFFF00', // yellow
+    '#ADD8E6', // light blue
+    '#FFC0CB', // pink
+    '#0000FF', // blue
+    '#A52A2A', // brown
+    '#800080', // purple
+    '#008080', // teal
+    '#FFA500'  // orange
+];
 
-const width = 120;
-const height = 80;
+let width = 120;
+let height = 80;
 
-const canvas = document.createElement('canvas');
-canvas.width = (CELL_SIZE + 1) * width + 1;
-canvas.height = (CELL_SIZE + 1) * height + 1;
-canvas.style.position = 'fixed';
-canvas.style.top = '0';
-canvas.style.left = '0';
-canvas.style.zIndex = '-1';
-canvas.style.width = '100vw';
-canvas.style.height = '100vh';
-document.body.appendChild(canvas);
-
-const ctx = canvas.getContext('2d');
-
-let universe;
+let canvas, ctx, universe;
+let aliveColor = '';
 
 function drawGrid() {
     ctx.beginPath();
@@ -47,10 +46,19 @@ function drawCells() {
 
     ctx.beginPath();
 
+    // 50% chance to use one color for all alive cells, 50% chance to randomize per cell
     for (let row = 0; row < height; row++) {
         for (let col = 0; col < width; col++) {
             const idx = row * width + col;
-            ctx.fillStyle = cells[idx] === 0 ? DEAD_COLOR : ALIVE_COLOR;
+            if (cells[idx] === 0) {
+                ctx.fillStyle = DEAD_COLOR;
+            } else {
+                if (aliveColor == '') {
+                    ctx.fillStyle = ALIVE_COLORS[Math.floor(Math.random() * ALIVE_COLORS.length)];
+                } else {
+                    ctx.fillStyle = aliveColor;
+                }
+            }
             ctx.fillRect(
                 col * (CELL_SIZE + 1) + 1,
                 row * (CELL_SIZE + 1) + 1,
@@ -61,7 +69,6 @@ function drawCells() {
     }
 }
 
-
 function renderLoop() {
     universe.tick();
     drawGrid();
@@ -69,8 +76,44 @@ function renderLoop() {
     setTimeout(renderLoop, 100); // 100ms per frame (10 FPS)
 }
 
-init().then(wasmModule => {
-    universe = new Universe(width, height);
-    memory = wasmModule.memory;
-    renderLoop();
+function init() {
+    // Remove any existing canvas (if refreshing or re-calling init)
+    if (canvas && canvas.parentNode) {
+        canvas.parentNode.removeChild(canvas);
+    }
+    // Calculate width and height based on window size
+    width = Math.floor(window.innerWidth / (CELL_SIZE + 1));
+    height = Math.floor(window.innerHeight / (CELL_SIZE + 1));
+    canvas = document.createElement('canvas');
+    canvas.width = (CELL_SIZE + 1) * width + 1;
+    canvas.height = (CELL_SIZE + 1) * height + 1;
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.zIndex = '-1';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    document.body.appendChild(canvas);
+    ctx = canvas.getContext('2d');
+    wasmInit().then(wasmModule => {
+        universe = new Universe(width, height);
+        memory = wasmModule.memory;
+        renderLoop();
+    });
+
+    // possibly select a single color
+    const useSingleColor = Math.random() < (ALIVE_COLORS.length/(ALIVE_COLORS.length + 1));
+    if (useSingleColor) {
+        aliveColor = ALIVE_COLORS[Math.floor(Math.random() * ALIVE_COLORS.length)];
+    } else {
+        aliveColor = '';
+    }
+}
+
+// Call init on page load and on window resize (debounced)
+window.addEventListener('DOMContentLoaded', init);
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(init, 200);
 });
