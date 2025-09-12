@@ -1,17 +1,16 @@
 let memory;
 import wasmInit, { Universe } from '../pkg/wasm_life.js';
 
-const CELL_SIZE = 9; // px
+const CELL_SIZE = 14; // px
 const GRID_COLOR = '#222';
 const DEAD_COLOR = '#111';
 const ALIVE_COLORS = [
     '#00FF99', // green (current)
     '#FF0000', // red
     '#FFFF00', // yellow
-    '#ADD8E6', // light blue
-    '#FFC0CB', // pink
+    '#F50CC7', // pink
     '#0000FF', // blue
-    '#A52A2A', // brown
+    '#6F4E37', // brown
     '#800080', // purple
     '#008080', // teal
     '#FFA500'  // orange
